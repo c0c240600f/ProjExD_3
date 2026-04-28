@@ -80,6 +80,7 @@ class Bird:
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
         self.rct.move_ip(sum_mv)
+        
         if check_bound(self.rct) != (True, True):
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
@@ -88,6 +89,7 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
             self.dire = tuple(sum_mv)
+
 
 class Beam:
     """
@@ -108,7 +110,6 @@ class Beam:
         self.rct = self.img.get_rect()
         self.rct.centerx = bird.rct.centerx + bird.rct.width * self.vx // 5
         self.rct.centery = bird.rct.centery + bird.rct.height * self.vy // 5
-
 
     def update(self, screen: pg.Surface):
         """
