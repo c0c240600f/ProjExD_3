@@ -158,6 +158,33 @@ class Score:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    """
+    爆発エフェクトクラス
+    """
+    def __init__(self, bomb: "Bomb", life: int = 10):
+        """
+        bomb：爆発する爆弾
+        life：表示時間
+        """
+        img = pg.image.load("fig/explosion.gif")
+
+        # 元画像＋上下左右反転の2枚
+        self.imgs = [img,pg.transform.flip(img, True, True)]
+
+        self.rct = self.imgs[0].get_rect()
+        self.rct.center = bomb.rct.center  # 爆弾の位置に合わせる
+        self.life = life
+
+    def update(self, screen: pg.Surface):
+        """
+        爆発時間を減算しながら交互表示
+        """
+        self.life -= 1
+        if self.life > 0:
+            screen.blit(self.imgs[self.life % 2], self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -165,6 +192,7 @@ def main():
     bird = Bird((300, 200))
     # bomb = Bomb((255, 0, 0), 10)
     bombs = []
+    explosions = []
     for i in range(NUM_OF_BOMBS):
         bomb = Bomb((255, 0, 0), 10)
         bombs.append(bomb)
@@ -198,6 +226,7 @@ def main():
             for j in range(len(beams)):
                 if beams[j] is not None:
                     if beams[j].rct.colliderect(bomb.rct):  # 爆弾とビームの衝突判定
+                        explosions.append(Explosion(bomb))
                         bombs[i] = None
                         beams[j] = None
                         bird.change_img(6, screen)  # こうかとん喜びエフェクト
@@ -207,6 +236,7 @@ def main():
 
         bombs = [bomb for bomb in bombs if bomb is not None]
         beams = [beam for beam in beams if beam is not None]
+        explosions = [exp for exp in explosions if exp.life > 0]
 
         beams = [beam for beam in beams if check_bound(beam.rct) == (True, True)]
         key_lst = pg.key.get_pressed()
@@ -223,6 +253,9 @@ def main():
             bomb.update(screen)
 
         score.update(screen)
+
+        for exp in explosions:
+            exp.update(screen)
 
         pg.display.update()
         tmr += 1
